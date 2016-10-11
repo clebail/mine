@@ -83,10 +83,10 @@ $(document).on("contextmenu", ".mine .game td", function(e) {
   if(!elt.hasClass("known")) {
     if(elt.hasClass("decouvre")) {
       elt.removeClass("decouvre");
-      nbDecouvre--;
+      nbDecouvre++;
     }else {
       elt.addClass("decouvre");
-      nbDecouvre++;
+      nbDecouvre--;
     }
 
     $(".mine .indique span.nbMine").html(padLeft(nbDecouvre));
@@ -194,6 +194,7 @@ function initGame(clickIdx) {
       }
 
       if(hasMine) {
+        nbDecouvre++;
         mines[idx] = {nb: 0, mine: true};
 
         if(y0) {
@@ -211,6 +212,8 @@ function initGame(clickIdx) {
       }
     }
   }
+
+  $(".mine .indique span.nbMine").html(padLeft(nbDecouvre));
 
   time = 0;
   tId = setTimeout(function () { timeOut(); }, 1000);
