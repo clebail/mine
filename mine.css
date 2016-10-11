@@ -1,0 +1,80 @@
+table.mine {
+  border-collapse: collapse;
+}
+
+.mine .indique td {
+  border: 1px solid #DDD;
+  width: 25px;
+  height: 25px;
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+.mine .indique span {
+  color: #c0392b;
+  font-family: monospace;
+}
+
+.mine tbody.game:before {
+    content: "-";
+    display: block;
+    line-height: 1em;
+    color: transparent;
+}
+
+.mine .game td {
+  border: 1px solid #DDD;
+  width: 25px;
+  height: 25px;
+  background-color: #EEE;
+  text-align: center;
+  color: #FFF;
+}
+
+.mine .game td[data-nb='1'] {
+  color: #1abc9c;
+}
+
+.mine .game td[data-nb='2'] {
+  color: #f1c40f;
+}
+
+.mine .game td[data-nb='3'] {
+  color: #f39c12;
+}
+
+.mine .game td[data-nb='4'] {
+  color: #3498db;
+}
+
+.mine .game td[data-nb='5'] {
+  color: #e74c3c;
+}
+
+.mine .game td[data-nb='6'] {
+  color: ##9b59b6;
+}
+
+.mine .game td[data-nb='7'] {
+  color: #34495e;
+}
+
+.mine .game td[data-nb='8'] {
+  color: #bdc3c7;
+}
+
+.mine .game td:hover {
+  background-color: #D0D0D0;
+}
+
+.mine .game td.known {
+  background-color: #FFF;
+}
+
+.mine .game td.go {
+  background: url(tdm.png) no-repeat 1px 0px;
+}
+
+.mine .game td.decouvre {
+  background: #EEE url(bombe.png) no-repeat 4px -2px;
+}
