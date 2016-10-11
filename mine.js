@@ -80,15 +80,17 @@ $(document).on("contextmenu", ".mine .game td", function(e) {
     initGame(idx);
   }
 
-  if(elt.hasClass("decouvre")) {
-    elt.removeClass("decouvre");
-    nbDecouvre--;
-  }else {
-    elt.addClass("decouvre");
-    nbDecouvre++;
-  }
+  if(!elt.hasClass("known")) {
+    if(elt.hasClass("decouvre")) {
+      elt.removeClass("decouvre");
+      nbDecouvre--;
+    }else {
+      elt.addClass("decouvre");
+      nbDecouvre++;
+    }
 
-  $(".mine .indique span.nbMine").html(padLeft(nbDecouvre));
+    $(".mine .indique span.nbMine").html(padLeft(nbDecouvre));
+  }
 
   firstClick = false;
 });
