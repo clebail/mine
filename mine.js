@@ -1,35 +1,29 @@
-var nbX = 30;
-var nbY = 30;
-var mines;
-var nbDecouvre;
-var tId;
-var time;
-var firstClick;
-
-$(function() {
-
-$.fn.initTable = function() {
+function Mine(table, nbX, nbY) {
   var x,y;
   var html = "";
+  var that = this;
 
-  firstClick = true;
+  this.nbX = nbX;
+  this.nbY = nbY;
+
+  this.firstClick = true;
 
   html += "<tbody class='indique'>";
   html += "<tr>";
-  html += "<td colspan='"+(nbX/2)+"'>";
+  html += "<td colspan='"+(this.nbX/2)+"'>";
   html += "mines : <span class='nbMine'>00</span>"
   html += "</td>";
-  html += "<td colspan='"+(nbX/2)+"'>";
+  html += "<td colspan='"+(this.nbX/2)+"'>";
   html += "temps : <span class='temps'>00:00:00</span>"
   html += "</td>";
   html += "</tr>";
   html += "</tbody>";
   html += "<tbody class='game'>";
 
-  for(y=0;y<nbY;y++) {
+  for(y=0;y<this.nbY;y++) {
     html += "<tr>";
-    for(x=0;x<nbX;x++) {
-      var idx = y*nbX+x;
+    for(x=0;x<this.nbX;x++) {
+      var idx = y*this.nbX+x;
       html += "<td data-idx='"+idx+"'></td>";
     }
 
@@ -38,114 +32,115 @@ $.fn.initTable = function() {
 
   html += "</tbody>";
 
-  $(this).html(html);
-  $(this).addClass("mine");
-}
+  $(table).html(html);
+  $(table).addClass("mine");
 
-$(document).on("click", ".mine .game td", function() {
-  var elt = $(this);
-  var idx = parseInt(elt.attr("data-idx"));
+  $(document).on("click", ".mine .game td", function() {
+    var elt = $(this);
+    var idx = parseInt(elt.attr("data-idx"));
 
-  if(firstClick) {
-    initGame(idx);
-  }
-
-  if(mines[idx]["mine"]) {
-    elt.addClass("known");
-    elt.addClass("go");
-    elt.removeClass("decouvre");
-    clearTimeout(tId);
-    $(document).off("click", "td");
-    $(document).off("contextmenu", "td");
-    alert("Perdu !");
-  }else {
-    showCase(idx);
-    if(win()) {
-      clearTimeout(tId);
-      $(document).off("click", "td");
-      $(document).off("contextmenu", "td");
-      alert("Gangné !")
+    if(that.firstClick) {
+      that.initGame(idx);
     }
-  }
 
-  firstClick = false;
-});
-
-$(document).on("contextmenu", ".mine .game td", function(e) {
-  e.preventDefault();
-  var elt = $(this);
-  var idx = parseInt(elt.attr("data-idx"));
-
-  if(firstClick) {
-    initGame(idx);
-  }
-
-  if(!elt.hasClass("known")) {
-    if(elt.hasClass("decouvre")) {
+    if(that.mines[idx]["mine"]) {
+      elt.addClass("known");
+      elt.addClass("go");
       elt.removeClass("decouvre");
-      nbDecouvre++;
+      clearTimeout(that.tId);
+      $(document).off("click", ".mine .game td");
+      $(document).off("contextmenu", ".mine .game td");
+      alert("Perdu !");
     }else {
-      elt.addClass("decouvre");
-      nbDecouvre--;
+      that.showCase(idx);
+      if(that.win(that)) {
+        clearTimeout(that.tId);
+        $(document).off("click", ".mine .game td");
+        $(document).off("contextmenu", ".mine .game td");
+        alert("Gangné !")
+      }
     }
 
-    $(".mine .indique span.nbMine").html(padLeft(nbDecouvre));
-  }
+    that.firstClick = false;
+  });
 
-  firstClick = false;
-});
+  $(document).on("contextmenu", ".mine .game td", function(e) {
+    e.preventDefault();
+    var elt = $(this);
+    var idx = parseInt(elt.attr("data-idx"));
 
-function incNb(idx) {
-  if(typeof(mines[idx]) != "undefined") {
-    if(!mines[idx]["mine"]) {
-      mines[idx]["nb"]++;
+    if(that.firstClick) {
+      that.initGame(idx);
+    }
+
+    if(!elt.hasClass("known")) {
+      if(elt.hasClass("decouvre")) {
+        elt.removeClass("decouvre");
+        that.nbDecouvre++;
+      }else {
+        elt.addClass("decouvre");
+        that.nbDecouvre--;
+      }
+
+      $(".mine .indique span.nbMine").html(that.padLeft(that.nbDecouvre));
+    }
+
+    that.firstClick = false;
+  });
+}  
+
+
+Mine.prototype.incNb = function(idx) {
+  if(typeof(this.mines[idx]) != "undefined") {
+    if(!this.mines[idx]["mine"]) {
+      this.mines[idx]["nb"]++;
     }else {
-      mines[idx]["nb"] = 0;
+      this.mines[idx]["nb"] = 0;
     }
   }else {
-    mines[idx] = {nb: 1, mine: false};
+    this.mines[idx] = {nb: 1, mine: false};
   }
 }
 
-function showCase(idx) {
+Mine.prototype.showCase = function(idx) {
   var elt = $(".mine .game td[data-idx='"+idx+"']");
 
   if(!elt.hasClass("known")) {
     elt.addClass("known");
     elt.removeClass("decouvre");
-    elt.attr("data-nb", mines[idx]["nb"]);
-    elt.html(mines[idx]["nb"]);
+    elt.attr("data-nb", this.mines[idx]["nb"]);
+    elt.html(this.mines[idx]["nb"]);
 
-    if(mines[idx]["nb"] == 0) {
-      var y = parseInt(idx / nbX, 10);
-      var x = idx % nbX;
+    if(this.mines[idx]["nb"] == 0) {
+      var y = parseInt(idx / this.nbX, 10);
+      var x = idx % this.nbX;
       var y0 = y > 0;
-      var y9 = y < nbY-1;
+      var y9 = y < this.nbY-1;
       var x0 = x > 0;
-      var x9 = x < nbX-1;
+      var x9 = x < this.nbX-1;
 
       if(y0) {
-        showCase(idx-nbX);
-        if(x0) showCase(idx-nbX-1);
-        if(x9) showCase(idx-nbX+1);
+        this.showCase(idx-this.nbX);
+        if(x0) this.showCase(idx-this.nbX-1);
+        if(x9) this.showCase(idx-this.nbX+1);
       }
       if(y9) {
-        showCase(idx+nbX);
-        if(x0) showCase(idx+nbX-1);
-        if(x9) showCase(idx+nbX+1);
+        this.showCase(idx+this.nbX);
+        if(x0) this.showCase(idx+this.nbX-1);
+        if(x9) this.showCase(idx+this.nbX+1);
       }
-      if(x0) showCase(idx-1);
-      if(x9) showCase(idx+1);
+      if(x0) this.showCase(idx-1);
+      if(x9) this.showCase(idx+1);
     }
   }
 }
 
-function win() {
+Mine.prototype.win = function(that) {
   var result = true;
 
   $(".mine .game td:not(.known)").each(function(key, value) {
     var idx = $(value).attr("data-idx");
-    if(!mines[idx]["mine"]) {
+    if(!that.mines[idx]["mine"]) {
       result = false;
       return;
     }
@@ -154,7 +149,7 @@ function win() {
   return result;
 }
 
-function padLeft(str) {
+Mine.prototype.padLeft = function(str) {
   if((""+str).length < 2) {
     str = "0" + str;
   }
@@ -162,60 +157,61 @@ function padLeft(str) {
   return str;
 }
 
-function timeOut() {
-  time++;
-
-  var h = parseInt(time / 3600, 10);
-  var m = parseInt(time / 60, 10);
-  var s = time % 60;
-  var display = padLeft(h)+":"+padLeft(m)+":"+padLeft(s);
-
-  $(".mine .indique span.temps").html(display);
-  tId = setTimeout(function () { timeOut(); }, 1000);
-}
-
-function initGame(clickIdx) {
+Mine.prototype.initGame = function(clickIdx) {
   var x, y;
+  var that = this;
 
-  mines = [];
-  nbDecouvre = 0;
+  this.mines = [];
+  this.nbDecouvre = 0;
 
-  for(y=0;y<nbY;y++) {
-    for(x=0;x<nbX;x++) {
-      var idx = y*nbX+x;
+  for(y=0;y<this.nbY;y++) {
+    for(x=0;x<this.nbX;x++) {
+      var idx = y*this.nbX+x;
       var hasMine = (idx != clickIdx ? Math.random() < 0.1 : false);
       var y0 = y > 0;
-      var y9 = y < nbY-1;
+      var y9 = y < this.nbY-1;
       var x0 = x > 0;
-      var x9 = x < nbX-1;
+      var x9 = x < this.nbX-1;
 
-      if(typeof(mines[idx]) == "undefined") {
-        mines[idx] = {nb: 0, mine: hasMine};
+      if(typeof(this.mines[idx]) == "undefined") {
+        this.mines[idx] = {nb: 0, mine: hasMine};
       }
 
       if(hasMine) {
-        nbDecouvre++;
-        mines[idx] = {nb: 0, mine: true};
+        this.nbDecouvre++;
+        this.mines[idx] = {nb: 0, mine: true};
 
         if(y0) {
-          incNb(idx-nbX);
-          if(x0) incNb(idx-nbX-1);
-          if(x9) incNb(idx-nbX+1);
+          this.incNb(idx-this.nbX);
+          if(x0) this.incNb(idx-this.nbX-1);
+          if(x9) this.incNb(idx-this.nbX+1);
         }
         if(y9) {
-          incNb(idx+nbX);;
-          if(x0) incNb(idx+nbX-1);
-          if(x9) incNb(idx+nbX+1);
+          this.incNb(idx+this.nbX);;
+          if(x0) this.incNb(idx+this.nbX-1);
+          if(x9) this.incNb(idx+this.nbX+1);
         }
-        if(x0) incNb(idx-1);
-        if(x9) incNb(idx+1);
+        if(x0) this.incNb(idx-1);
+        if(x9) this.incNb(idx+1);
       }
     }
   }
 
-  $(".mine .indique span.nbMine").html(padLeft(nbDecouvre));
+  $(".mine .indique span.nbMine").html(this.padLeft(this.nbDecouvre));
 
-  time = 0;
-  tId = setTimeout(function () { timeOut(); }, 1000);
+  this.time = 0;
+  this.tId = setTimeout(function () { that.timeOut(); }, 1000);
 }
-});
+
+Mine.prototype.timeOut = function() {
+  var that = this;
+  this.time++;
+
+  var h = parseInt(this.time / 3600, 10);
+  var m = parseInt(this.time / 60, 10);
+  var s = this.time % 60;
+  var display = this.padLeft(h)+":"+this.padLeft(m)+":"+this.padLeft(s);
+
+  $(".mine .indique span.temps").html(display);
+  this.tId = setTimeout(function () { that.timeOut(); }, 1000);
+}
