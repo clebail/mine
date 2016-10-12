@@ -50,14 +50,14 @@ function Mine(table, nbX, nbY) {
       clearTimeout(that.tId);
       $(document).off("click", ".mine .game td");
       $(document).off("contextmenu", ".mine .game td");
-      alert("Perdu !");
+      $(table).trigger("loose");
     }else {
       that.showCase(idx);
       if(that.win(that)) {
         clearTimeout(that.tId);
         $(document).off("click", ".mine .game td");
         $(document).off("contextmenu", ".mine .game td");
-        alert("Gangné !")
+        $(table).trigger("win");
       }
     }
 
@@ -196,6 +196,7 @@ Mine.prototype.initGame = function(clickIdx) {
       }
     }
   }
+  this.nbMine = this.nbDecouvre;
 
   $(".mine .indique span.nbMine").html(this.padLeft(this.nbDecouvre));
 
@@ -214,4 +215,12 @@ Mine.prototype.timeOut = function() {
 
   $(".mine .indique span.temps").html(display);
   this.tId = setTimeout(function () { that.timeOut(); }, 1000);
+}
+
+Mine.prototype.getTime = function() {
+  return this.time;
+}
+
+Mine.prototype.getNbMine = function() {
+  return this.nbMine;
 }
