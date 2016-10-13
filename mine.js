@@ -8,6 +8,8 @@ function Mine(table, nbX, nbY) {
 
   this.firstClick = true;
 
+  this.table = table;
+
   html += "<tbody class='indique'>";
   html += "<tr>";
   html += "<td colspan='"+(this.nbX/2)+"'>";
@@ -50,7 +52,7 @@ function Mine(table, nbX, nbY) {
       clearTimeout(that.tId);
       $(document).off("click", ".mine .game td");
       $(document).off("contextmenu", ".mine .game td");
-      $(table).trigger("loose");
+      $(table).trigger("loose", idx);
     }else {
       that.showCase(idx);
       if(that.win(that)) {
@@ -223,4 +225,55 @@ Mine.prototype.getTime = function() {
 
 Mine.prototype.getNbMine = function() {
   return this.nbMine;
+}
+
+Mine.prototype.decouvreAll = function() {
+  var x, y, idx;
+
+  for(y=0;y<this.nbY;y++) {
+    for(x=0;x<this.nbX;x++) {
+      idx = y * this.nbX + x;
+      var elt = $(".mine .game td[data-idx='"+idx+"']");
+
+      if(this.mines[idx]["mine"]) {
+        elt.removeClass("known");
+        elt.addClass("decouvre");
+        elt.html("");
+        elt.attr("data-nb", 0);
+      }else {
+        elt.addClass("known");
+        elt.removeClass("decouvre");
+        elt.html(this.mines[idx]["nb"]);
+        elt.attr("data-nb", this.mines[idx]["nb"]);
+      }
+    }
+  }
+}
+
+Mine.prototype.explode = function(idx) {
+  var elt = $(".mine .game td[data-idx='"+idx+"']");
+  var nb = 0;
+  var x = Number(elt.css('background-position-x').replace(/[^0-9-]/g, ''));
+  var diff = 2*x;
+  var max = 20;
+  var n=0;
+  var that = this;
+  x--;
+
+  while(nb != max) {
+    x = diff - x;
+
+    elt.animate({backgroundPositionX: x+"px"}, 50, "swing", function() { 
+      if(n == max-1) { 
+        elt.removeClass("decouvre"); 
+        elt.css('background-position-x', '1px');
+
+        $(that.table).trigger("explodeEnd");
+      } else { 
+        n++; 
+      }
+    });
+
+    nb++;
+  }
 }

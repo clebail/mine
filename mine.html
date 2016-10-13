@@ -11,9 +11,10 @@
 		</table>
 		<script type="text/javascript">
 			$(document).ready(function() {
-				new Mine($("#main"), 20, 20);
+				var mine = new Mine($("#main"), 20, 20);
 
-				$("#main").on("loose", function() { alert("Perdu !"); });
+				$("#main").on("loose", function(event, idx) { mine.decouvreAll(); mine.explode(idx); });
+				$("#main").on("explodeEnd", function() { alert("Perdu !"); });
 				$("#main").on("win", function() { alert("Gagné !"); });
 			});
 		</script>
